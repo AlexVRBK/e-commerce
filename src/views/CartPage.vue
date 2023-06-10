@@ -1,11 +1,10 @@
 <template>
-<the-header class="shadow-sm"></the-header>
+  <the-header class="shadow-sm"></the-header>
   <div class="container">
-    <span v-on:keydown="key">{{message}}</span>
+    <span v-on:keydown="key">{{ message }}</span>
     <span class="d-flex mb-3 mt-2">
       <router-link to="/">
-        <span class="material-symbols-outlined"> arrow_back </span> Back To
-        Shopping
+        <span class="material-symbols-outlined"> arrow_back </span> Back To Shopping
       </router-link>
     </span>
     <div class="card" v-if="cart.length != 0">
@@ -20,125 +19,123 @@
           </tr>
         </thead>
         <tbody>
-    
-              <tr v-for="product in allItems" :key="product.id">
-                <td>{{product.id}}</td>
-                <td class="d-flex">
-                  <img
-                    :src="product.img"
-                    class="product_img"
-                  />
-                  <span class="product_title">{{product.title}}</span>
-                </td>
-                <td>
-                  <input type="number" name="" id="" @change="onChange(product.id,$event)" :value="product.count" size="4" min="1" max="10" />
-                </td>
-                <td><span>Rs. &#8377;{{parseFloat(product.price*70).toFixed(2)}}</span></td>
-                <td>
-                  <button class="btn btn-danger" @click="deleteItem(product.id)">
-                    <span class="material-symbols-outlined"> delete_forever </span>
-                  </button>
-                </td>
-              </tr>
-        
+          <tr v-for="product in allItems" :key="product.id">
+            <td>{{ product.id }}</td>
+            <td class="d-flex">
+              <img :src="product.img" class="product_img" />
+              <span class="product_title">{{ product.title }}</span>
+            </td>
+            <td>
+              <input type="number" name="" id="" @change="onChange(product.id, $event)" :value="product.count" size="4" min="1" max="10" />
+            </td>
+            <td><span>${{ convertToDollars(product.price) }}</span></td>
+            <td>
+              <button class="btn btn-danger" @click="deleteItem(product.id)">
+                <span class="material-symbols-outlined"> delete_forever </span>
+              </button>
+            </td>
+          </tr>
+
           <tr>
             <td></td>
             <td></td>
-            <td>Total Quantity:{{items}}</td>
-            <td>Grand Total :&#8377;{{total}}</td>
+            <td>Total Quantity: {{ items }}</td>
+            <td>Grand Total: ${{ convertToDollars(total) }}</td>
             <td><button class="btn btn-success" @click="checkout">Buy Now</button></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div  class="no-item" v-else>
-      Nothing in the cart !!!
+    <div class="no-item" v-else>
+      Nothing in the cart !
     </div>
   </div>
 </template>
 
+
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import TheHeader from "../components/TheHeader.vue"
-export default {
-    components:{
-      TheHeader
-    },
-    created() {
-       console.log("Created",this.cart)
-       this.allItems = this.cart
+import TheHeader from "../components/TheHeader.vue";
 
+export default {
+  components: {
+    TheHeader
+  },
+  created() {
+    console.log("Created", this.cart);
+    this.allItems = this.cart;
+  },
+  data() {
+    return {
+      allItems: [],
+      exchangeRate: 0.75, // Assume exchange rate: 1 USD = 0.75 INR
+      message: ""
+    };
+  },
+  methods: {
+    ...mapMutations("cart", ["SET_QUANTITY", "DEL_ITEM"]),
+    onChange(id, e) {
+      console.log(id, e.target.value);
+      const count = e.target.value;
+      if (count > 0 && count <= 10) {
+        const arr = [id, count];
+        this.SET_QUANTITY(arr);
+        console.log("completed");
+        this.$store.dispatch("cart/updateCart").then(result =>
+          console.log("dispatched method")
+        );
+      } else {
+        alert("invalid input");
+      }
     },
-    data() {
-        return {
-            allItems:[],
-            message:''
-            
+    deleteItem(id) {
+      console.log("in deleted!!");
+      this.DEL_ITEM(id);
+      this.$store.dispatch("cart/updateCart").then(result =>
+        console.log("dispatched method")
+      );
+    },
+    checkout() {
+      console.log("isAuthenticated", this.$store.getters["user/isAuthenticated"]);
+      if (!this.$store.getters["user/isAuthenticated"]) {
+        console.log(this.$route);
+        this.$router.push({ path: "/login", query: { redirectTo: this.$route.fullPath } });
+      } else {
+        console.log("done with checkout");
+        let op = confirm("Do you want to continue ?");
+        if (op) {
+          this.$store.commit("cart/RESET_STATE");
+          this.$store.dispatch("cart/updateCart").then(result =>
+            console.log("dispatched method")
+          );
+        } else {
+          alert("your purchase is not completed!!");
         }
+      }
     },
-    methods:{
-        ...mapMutations('cart',['SET_QUANTITY']),
-        ...mapMutations('cart',['DEL_ITEM']),
-         onChange(id,e){
-            console.log(id,e.target.value)
-            const count = e.target.value
-            if(count > 0 && count <= 10){
-            const arr = [id,count]
-            this.SET_QUANTITY(arr)
-            console.log("completed")
-             this.$store.dispatch('cart/updateCart').then(result => console.log("dispatched methosd"))
-            }
-            else{
-              alert("invalid input")
-            }
-            
-         },
-         deleteItem(id){
-           console.log("in deleted!!")
-           this.DEL_ITEM(id)
-            this.$store.dispatch('cart/updateCart').then(result => console.log("dispatched methosd"))  
-         },
-         checkout(){
-           console.log("isAuthenticated",this.$store.getters['user/isAuthenticated'])
-           if(!this.$store.getters['user/isAuthenticated']){
-             console.log(this.$route)
-             this.$router.push({path: "/login", query: { redirectTo: this.$route.fullPath }})
-           }
-           else{
-             console.log("done with checkout")
-             let op = confirm("Do you want to continue ?");
-             if(op){
-               this.$store.commit('cart/RESET_STATE')
-                this.$store.dispatch('cart/updateCart').then(result => console.log("dispatched methosd"))
-             }
-             else{
-               alert("your purchase is not completed!!")
-             }
-           }
-         }
-        
-    },
-    
-    computed:{
-        ...mapState('cart',['cart']),
-        // ...mapSta('cart',['GET_TOTAL']),
-        items(){
-          let sum = 0
-           this.cart.forEach((each) => {
-           sum  = sum + Number(each.count)
-          })
-        return sum
-        
-        },
-        total(){
-           let sum = 0
-           this.cart.forEach((each) => {
-           sum  = sum +  each.price*each.count
-          })
-        return parseFloat(sum*70).toFixed(2)
-        }
+    convertToDollars(price) {
+      return (price * this.exchangeRate).toFixed(2);
     }
+  },
+  computed: {
+    ...mapState("cart", ["cart"]),
+    items() {
+      let sum = 0;
+      this.cart.forEach(each => {
+        sum = sum + Number(each.count);
+      });
+      return sum;
+    },
+    total() {
+      let sum = 0;
+      this.cart.forEach(each => {
+        sum = sum + each.price * each.count;
+      });
+      return sum;
+    }
+  }
 };
+
 </script>
 
 <style scoped>
@@ -212,7 +209,7 @@ tr {
 }
 .no-item{
   margin:auto;
-  font-size: 45px;
+  font-size: 35px;
   text-decoration: none;
 }
 
