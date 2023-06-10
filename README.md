@@ -1,22 +1,5 @@
-# e-commerce-vue
+# e-commerce ZYRO
+## E-commerce Website Built With Vue.Js
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-### ScreenShot
-![image](https://user-images.githubusercontent.com/98960675/165884045-fd8e38d2-02d2-47bb-bec2-9b2341b85a22.png)
-
-
-![image](https://user-images.githubusercontent.com/98960675/165884130-1e7a145c-7129-4544-a25a-b261b04281f6.png)
-
+![workzyro](https://github.com/AlexVRBK/e-commerce/assets/82229268/4dc7635b-139a-4f03-9301-70b638f67aba)
+![Screenshoаt_1](https://github.com/AlexVRBK/e-commerce/assets/82229268/6ae9a7e2-669e-4089-acc8-31accb9c71d0)
